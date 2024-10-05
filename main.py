@@ -13,7 +13,7 @@ from multiprocessing import Process
 from pymongo import MongoClient, errors
 from pymongo.server_api import ServerApi
 
-### Всякі конфігурації
+# Всякі конфігурації
 
 # MONGO_URI = "mongodb://mongodb:27017"
 MONGO_URI = "mongodb://root:mongo_pass@localhost",
@@ -27,6 +27,7 @@ TCP_PORT = 5000
 # Потрібна для того щоб ці процеси коректно завершувати
 http_server_process = None
 socket_server_process = None
+
 
 class HttpGetHandler(SimpleHTTPRequestHandler):
     '''Вбудований у додаток веб-сервер'''
@@ -106,6 +107,8 @@ def run_http_server(server_class=HTTPServer, handler_class=HttpGetHandler):
     finally:
         http.server_close()
         logging.info("Server closed")
+        logging.info("Changing working directory to root project directory")
+        os.chdir("../")
 
 
 def send_data_to_socket(data):
@@ -162,7 +165,6 @@ def run_socket_server(host, port):
         logging.info("SocketServer started")
 
         conn, addr = s.accept()
-        logging.info("SocketServer started")
 
         with conn:
             while True:
@@ -178,16 +180,20 @@ def run_socket_server(host, port):
 
                 logging.debug("Accepted on socket-server %s", data_dict)
                 save_data(data_dict)
+            conn.close()
+
 
 def signal_handler(sig, frame):
     '''Коректна обробка завершення процесів веб-сервера і сокет-сервера'''
     logging.info("Received SIGINT, shutting down servers...")
-    if http_server_process is not None:
+    if http_server_process is not None and http_server_process.is_alive():
         http_server_process.terminate()
         http_server_process.join()
-    if socket_server_process is not None:
+
+    if socket_server_process is not None and socket_server_process.is_alive():
         socket_server_process.terminate()
         socket_server_process.join()
+
     sys.exit(0)
 
 
