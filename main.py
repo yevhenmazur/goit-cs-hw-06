@@ -58,7 +58,7 @@ class HttpGetHandler(SimpleHTTPRequestHandler):
             if pathlib.Path().joinpath(pr_url.path[1:]).exists():
                 self.send_static()
             else:
-                self.send_error(404, "File Not Found")
+                self.send_html_file('error.html', 404)
 
     def send_html_file(self, filename, status_code=200):
         '''Віддає файл, чи сторінку 404'''
