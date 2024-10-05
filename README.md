@@ -1,23 +1,22 @@
 # goit-cs-hw-06
-Socket Programming та комунікації реального часу
+## Домашня робота на тему Socket Programming та комунікації реального часу
+Зразковий веб-додаток, який взаємодіє з сервером за допомогою сокетів та здатний зберігати інформацію у базі даних MongoDB.
 
-## Build manualy
-```
- docker build -t goit-cs-hw-06 ./
-```
-
-## Run 
-```
-docker run -d -p 3000:3000 --rm goit-cs-hw-06
-```
-
-## Run in compose
+## Як працювати
+1. У файлі `.env` налаштуйте параметри доступу до MongoDB (Можна залишити як є)
+2. Запустіть додаток командою
 ```
 docker compose up
 ```
+3. Веб-додаток доступний за адресою http://localhost:3000/
+4. Mongo-express доступний за адресою http://localhost:8081/
 
-## Web app
-http://localhost:3000/
-
-## Mongo-express
-http://localhost:8081/
+## Альтернативно
+Можна збудувати і запустити із окремим сетапом MongoDB без docker-compose
+```
+ docker build -t goit-cs-hw-06 ./
+```
+ 
+```
+docker run -d -p 3000:3000 --rm goit-cs-hw-06
+```
