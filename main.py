@@ -15,8 +15,8 @@ from pymongo.server_api import ServerApi
 
 # Всякі конфігурації
 
-# MONGO_URI = "mongodb://mongodb:27017"
-MONGO_URI = "mongodb://root:mongo_pass@localhost",
+MONGO_URI = os.getenv('MONGO_URI')
+# MONGO_URI = "mongodb://root:mongo_pass@localhost",
 
 HTTPServer_Port = 3000
 HTTPDocs = './httpdoc'
@@ -157,30 +157,26 @@ def save_data(d: dict):
 
 
 def run_socket_server(host, port):
-    '''Запускає сокет-сервер, який буде ловити байтстрінг із вебформи'''
+    '''Запускає сокет-сервер, який обробляє байтстрінг із вебформи'''
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         s.bind((host, port))
-        s.listen(1)
+        s.listen(10)
         logging.info("SocketServer started")
 
-        conn, addr = s.accept()
+        while True:
+            conn, addr = s.accept()
+            logging.info("Connection from %s", {addr})
 
-        with conn:
-            while True:
+            with conn:
                 data = conn.recv(1024)
-                if not data:
-                    break
-                string_data = data.decode()
-                decoded_data = urllib.parse.unquote_plus(string_data)
-                data_dict = {}
-                for el in decoded_data.split('&'):
-                    key, value = el.split('=')
-                    data_dict[key] = value
+                if data:
+                    string_data = urllib.parse.unquote_plus(data.decode())
+                    data_dict = dict(el.split('=') for el in string_data.split('&'))
 
-                logging.debug("Accepted on socket-server %s", data_dict)
-                save_data(data_dict)
-            conn.close()
+                    logging.debug("Accepted on socket-server %s", data_dict)
+                    save_data(data_dict)
+
 
 
 def signal_handler(sig, frame):
